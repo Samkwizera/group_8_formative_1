@@ -1,64 +1,67 @@
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/student.dart';
 import '../models/assignment.dart';
 import '../models/academic_session.dart';
+import 'database_helper.dart';
 
 class DataService {
-  static const String _studentKey = 'student_data';
-  static const String _assignmentsKey = 'assignments_data';
-  static const String _sessionsKey = 'sessions_data';
+  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
   // Save Student Data
   Future<void> saveStudent(Student student) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_studentKey, jsonEncode(student.toJson()));
+    await _dbHelper.insertStudent(student);
   }
 
   // Get Student Data
   Future<Student?> getStudent() async {
-    final prefs = await SharedPreferences.getInstance();
-    final studentData = prefs.getString(_studentKey);
-    if (studentData != null) {
-      return Student.fromJson(jsonDecode(studentData));
-    }
-    return null;
+    return await _dbHelper.getStudent();
   }
 
-  // Save Assignments
+  // Assignment Operations
   Future<void> saveAssignments(List<Assignment> assignments) async {
-    final prefs = await SharedPreferences.getInstance();
-    final assignmentsJson = assignments.map((a) => a.toJson()).toList();
-    await prefs.setString(_assignmentsKey, jsonEncode(assignmentsJson));
+    // Insert all assignments
+    for (var assignment in assignments) {
+      await _dbHelper.insertAssignment(assignment);
+    }
   }
 
-  // Get Assignments
   Future<List<Assignment>> getAssignments() async {
-    final prefs = await SharedPreferences.getInstance();
-    final assignmentsData = prefs.getString(_assignmentsKey);
-    if (assignmentsData != null) {
-      final List<dynamic> jsonList = jsonDecode(assignmentsData);
-      return jsonList.map((json) => Assignment.fromJson(json)).toList();
-    }
-    return [];
+    return await _dbHelper.getAssignments();
   }
 
-  // Save Sessions
+  Future<void> addAssignment(Assignment assignment) async {
+    await _dbHelper.insertAssignment(assignment);
+  }
+
+  Future<void> updateAssignment(Assignment assignment) async {
+    await _dbHelper.updateAssignment(assignment);
+  }
+
+  Future<void> deleteAssignment(String id) async {
+    await _dbHelper.deleteAssignment(id);
+  }
+
+  // Session Operations
   Future<void> saveSessions(List<AcademicSession> sessions) async {
-    final prefs = await SharedPreferences.getInstance();
-    final sessionsJson = sessions.map((s) => s.toJson()).toList();
-    await prefs.setString(_sessionsKey, jsonEncode(sessionsJson));
+    // Insert all sessions
+    for (var session in sessions) {
+      await _dbHelper.insertSession(session);
+    }
   }
 
-  // Get Sessions
   Future<List<AcademicSession>> getSessions() async {
-    final prefs = await SharedPreferences.getInstance();
-    final sessionsData = prefs.getString(_sessionsKey);
-    if (sessionsData != null) {
-      final List<dynamic> jsonList = jsonDecode(sessionsData);
-      return jsonList.map((json) => AcademicSession.fromJson(json)).toList();
-    }
-    return [];
+    return await _dbHelper.getSessions();
+  }
+
+  Future<void> addSession(AcademicSession session) async {
+    await _dbHelper.insertSession(session);
+  }
+
+  Future<void> updateSession(AcademicSession session) async {
+    await _dbHelper.updateSession(session);
+  }
+
+  Future<void> deleteSession(String id) async {
+    await _dbHelper.deleteSession(id);
   }
 
   // Calculate Attendance Percentage
@@ -70,7 +73,6 @@ class DataService {
 
   // Clear all data
   Future<void> clearAllData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await _dbHelper.clearAllData();
   }
 }
