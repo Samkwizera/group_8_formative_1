@@ -14,16 +14,21 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    const DashboardScreen(),
-    const AssignmentsScreen(),
-    const ScheduleScreen(),
+  final List<Widget> _screens = const [
+    DashboardScreen(),
+    AssignmentScreen(),
+    ScheduleScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      // Use IndexedStack to preserve state of screens
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: ALUColors.cardBackground,
         selectedItemColor: ALUColors.accentYellow,
